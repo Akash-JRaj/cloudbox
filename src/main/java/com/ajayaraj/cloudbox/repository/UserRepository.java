@@ -1,6 +1,6 @@
-package com.ajayaraj.cloudbox.repositories;
+package com.ajayaraj.cloudbox.repository;
 
-import com.ajayaraj.cloudbox.models.User;
+import com.ajayaraj.cloudbox.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

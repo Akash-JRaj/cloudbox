@@ -1,4 +1,4 @@
-package com.ajayaraj.cloudbox.models;
+package com.ajayaraj.cloudbox.model;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,6 +15,8 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+    private String firstName;
+    private String lastName;
     private String emailId;
     private String passwordHash;
     private Date createdAt;
