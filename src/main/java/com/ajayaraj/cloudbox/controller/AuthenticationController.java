@@ -1,5 +1,6 @@
 package com.ajayaraj.cloudbox.controller;
 
+import com.ajayaraj.cloudbox.dto.LoginRequest;
 import com.ajayaraj.cloudbox.dto.RegisterRequest;
 import com.ajayaraj.cloudbox.model.User;
 import com.ajayaraj.cloudbox.service.AuthenticationService;
@@ -25,6 +26,11 @@ public class AuthenticationController {
     @PostMapping("/register")
     public ResponseEntity<User> register(@Valid @RequestBody RegisterRequest registerRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(authenticationService.register(registerRequest));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@Valid @RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.status(HttpStatus.OK).body(authenticationService.login(loginRequest));
     }
 
 }

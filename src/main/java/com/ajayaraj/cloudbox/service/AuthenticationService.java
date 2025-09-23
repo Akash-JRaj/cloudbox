@@ -1,7 +1,9 @@
 package com.ajayaraj.cloudbox.service;
 
+import com.ajayaraj.cloudbox.dto.LoginRequest;
 import com.ajayaraj.cloudbox.dto.RegisterRequest;
 import com.ajayaraj.cloudbox.exception.ConflictException;
+import com.ajayaraj.cloudbox.exception.NotFoundException;
 import com.ajayaraj.cloudbox.model.User;
 import com.ajayaraj.cloudbox.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,6 +37,13 @@ public class AuthenticationService {
         return userRepository.save(user);
     }
 
+    public String login(LoginRequest loginRequest) {
+        if(isValidUser(loginRequest)) {
+            return "Logged in successfully";
+        }
+        return "Email or password incorrect";
+    }
+
     public boolean isEmailTaken(String emailId) {
         User user = userRepository.findByEmailId(emailId);
 
@@ -45,4 +54,13 @@ public class AuthenticationService {
         return new BCryptPasswordEncoder().encode(password);
     }
 
+    public boolean isValidUser(LoginRequest loginRequest) {
+        User user = userRepository.findByEmailId(loginRequest.getEmailId());
+
+        if(user == null) {
+            throw new NotFoundException("User with specified email id : " + loginRequest.getEmailId() + " not found!");
+        }
+
+        return new BCryptPasswordEncoder().matches(loginRequest.getPassword(), user.getPasswordHash());
+    }
 }
