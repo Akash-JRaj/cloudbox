@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Component
-public class jwtUtil {
+public class JwtUtil {
 
     private final String SECRET = "2345678923456734567345673456745674738947437483479353649374365309F34JH34J3NO35H3OH43OM3OH";
     private final long EXPIRATION = 1000 * 60 * 30;

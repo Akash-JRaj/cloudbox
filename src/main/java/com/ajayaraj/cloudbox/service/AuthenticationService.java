@@ -6,6 +6,7 @@ import com.ajayaraj.cloudbox.exception.ConflictException;
 import com.ajayaraj.cloudbox.exception.NotFoundException;
 import com.ajayaraj.cloudbox.model.User;
 import com.ajayaraj.cloudbox.repository.UserRepository;
+import com.ajayaraj.cloudbox.util.JwtUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,9 +16,11 @@ import java.util.Date;
 public class AuthenticationService {
 
     private UserRepository userRepository;
+    private JwtUtil jwtUtil;
 
-    public AuthenticationService(UserRepository userRepository) {
+    public AuthenticationService(UserRepository userRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.jwtUtil = jwtUtil;
     }
 
     public User register(RegisterRequest registerRequest) {
@@ -39,7 +42,7 @@ public class AuthenticationService {
 
     public String login(LoginRequest loginRequest) {
         if(isValidUser(loginRequest)) {
-            return "Logged in successfully";
+            return jwtUtil.generateToken(loginRequest.getEmailId());
         }
         return "Email or password incorrect";
     }
