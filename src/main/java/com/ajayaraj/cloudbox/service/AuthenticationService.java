@@ -4,6 +4,7 @@ import com.ajayaraj.cloudbox.dto.LoginRequest;
 import com.ajayaraj.cloudbox.dto.RegisterRequest;
 import com.ajayaraj.cloudbox.exception.ConflictException;
 import com.ajayaraj.cloudbox.exception.NotFoundException;
+import com.ajayaraj.cloudbox.mapper.UserMapper;
 import com.ajayaraj.cloudbox.model.User;
 import com.ajayaraj.cloudbox.repository.UserRepository;
 import com.ajayaraj.cloudbox.util.JwtUtil;
@@ -17,10 +18,12 @@ public class AuthenticationService {
 
     private UserRepository userRepository;
     private JwtUtil jwtUtil;
+    private UserMapper userMapper;
 
-    public AuthenticationService(UserRepository userRepository, JwtUtil jwtUtil) {
+    public AuthenticationService(UserRepository userRepository, JwtUtil jwtUtil, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+        this.userMapper = userMapper;
     }
 
     public User register(RegisterRequest registerRequest) {
@@ -29,10 +32,7 @@ public class AuthenticationService {
             throw new ConflictException("Email id already exists!");
         }
 
-        User user = new User();
-        user.setFirstName(registerRequest.getFirstName());
-        user.setLastName(registerRequest.getLastName());
-        user.setEmailId(registerRequest.getEmailId());
+        User user = userMapper.toEntity(registerRequest);
         user.setPasswordHash(hashPassword(registerRequest.getPassword()));
         user.setCreatedAt(new Date());
         user.setUpdatedAt(new Date());
