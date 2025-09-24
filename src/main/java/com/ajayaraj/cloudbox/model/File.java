@@ -16,7 +16,7 @@ public class File {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    private UUID userId;
+    private UUID ownerId;
     private String fileName;
     private String ownerName;
     private long size;
