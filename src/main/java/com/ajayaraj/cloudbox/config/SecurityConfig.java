@@ -25,6 +25,7 @@ public class SecurityConfig {
                         auth.requestMatchers(
                                 "/auth/**"
                         ).permitAll();
+                        auth.anyRequest().authenticated();
                     }
                 )
                 .sessionManagement(
