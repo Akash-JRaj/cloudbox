@@ -11,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileOutputStream;
-
 @RestController
 @RequestMapping("/files")
 public class FileController {
@@ -32,7 +30,6 @@ public class FileController {
 
     @PostMapping("/upload/s3")
     public ResponseEntity<String> uploadFileS3(@RequestParam("file") MultipartFile file) {
-        amazonClient.uploadFile(file);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Success");
+        return ResponseEntity.status(HttpStatus.CREATED).body(amazonClient.uploadFile(file));
     }
 }
