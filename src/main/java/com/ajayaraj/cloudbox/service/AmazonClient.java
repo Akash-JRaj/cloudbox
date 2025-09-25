@@ -1,6 +1,7 @@
 package com.ajayaraj.cloudbox.service;
 
 import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,7 +12,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.IOException;
+import java.util.UUID;
 
 @Service
 public class AmazonClient {
@@ -30,6 +31,9 @@ public class AmazonClient {
 
     private S3Client s3Client;
 
+    @Autowired
+    private AuthenticationService authenticationService;
+
     @PostConstruct
     public void init() {
 
@@ -43,18 +47,26 @@ public class AmazonClient {
                 .build();
     }
 
-    public void uploadFile(MultipartFile file) {
+    public String uploadFile(MultipartFile file) {
+        String fileUrl = null;
         try {
+            UUID currentUserId = authenticationService.getCurrentUserId();
+            String key = currentUserId + "/" + file.getOriginalFilename().replaceAll(" ", "_");
+
             PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                     .bucket(this.bucketName)
-                    .key(file.getOriginalFilename())
+                    .key(key)
                     .contentType(file.getContentType())
                     .build();
 
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
+
+            fileUrl = endpointUrl + "/" + bucketName + "/" + key;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+
+        return fileUrl;
     }
 
 
