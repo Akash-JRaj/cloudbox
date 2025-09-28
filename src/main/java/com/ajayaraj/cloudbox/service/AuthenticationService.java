@@ -8,10 +8,12 @@ import com.ajayaraj.cloudbox.mapper.UserMapper;
 import com.ajayaraj.cloudbox.model.User;
 import com.ajayaraj.cloudbox.repository.UserRepository;
 import com.ajayaraj.cloudbox.util.JwtUtil;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 public class AuthenticationService {
@@ -65,5 +67,12 @@ public class AuthenticationService {
         }
 
         return new BCryptPasswordEncoder().matches(loginRequest.getPassword(), user.getPasswordHash());
+    }
+
+    public UUID getCurrentUserId() {
+        String emailId = SecurityContextHolder.getContext().getAuthentication().getName();
+        User user = userRepository.findByEmailId(emailId);
+
+        return user.getId();
     }
 }
