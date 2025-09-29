@@ -7,11 +7,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.ResponseInputStream;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
+import java.io.IOException;
+import java.time.Duration;
 import java.util.UUID;
 
 @Service
@@ -31,6 +39,8 @@ public class AmazonClient {
 
     private S3Client s3Client;
 
+    private S3Presigner s3Presigner;
+
     @Autowired
     private AuthenticationService authenticationService;
 
@@ -42,6 +52,11 @@ public class AmazonClient {
         StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(credentials);
 
         s3Client = S3Client.builder()
+                .region(Region.EU_NORTH_1)
+                .credentialsProvider(credentialsProvider)
+                .build();
+
+        s3Presigner = S3Presigner.builder()
                 .region(Region.EU_NORTH_1)
                 .credentialsProvider(credentialsProvider)
                 .build();
@@ -67,6 +82,43 @@ public class AmazonClient {
         }
 
         return fileUrl;
+    }
+
+    public byte[] downloadFile(String objectKey) throws Exception {
+        try {
+            GetObjectRequest getObjectRequest = GetObjectRequest
+                    .builder()
+                    .bucket(bucketName)
+                    .key("abebefdb-d878-4955-b0ef-9889b8e3c406/Akash_Jayaraj_SSE.pdf")
+                    .build();
+
+            ResponseInputStream<GetObjectResponse> file = s3Client.getObject(getObjectRequest);
+
+            return file.readAllBytes();
+        }
+        catch (IOException e) {
+            throw new IOException(e);
+        }
+        catch (Exception e) {
+            throw new Exception(e);
+        }
+    }
+
+    public String getUrl(String objectKey) {
+        GetObjectRequest getObjectRequest = GetObjectRequest
+                .builder()
+                .bucket(bucketName)
+                .key("abebefdb-d878-4955-b0ef-9889b8e3c406/Akash_Jayaraj_SSE.pdf")
+                .build();
+
+        GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .getObjectRequest(getObjectRequest)
+                .signatureDuration(Duration.ofSeconds(30))
+                .build();
+
+        PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(presignRequest);
+
+        return presignedGetObjectRequest.url().toString();
     }
 
 
