@@ -31,16 +31,16 @@ public class FileController {
         return ResponseEntity.status(HttpStatus.CREATED).body(amazonClient.uploadFile(file));
     }
 
-    @PostMapping("/download/s3")
-    public ResponseEntity<byte[]> downloadFileS3(@RequestBody String key) throws Exception {
+    @GetMapping("/download/s3")
+    public ResponseEntity<byte[]> downloadFileS3(@RequestParam String key) throws Exception {
         byte[] file = amazonClient.downloadFile(key);
 
         return ResponseEntity.status(HttpStatus.OK).body(file);
     }
 
-    @PostMapping("/download/s3/url")
-    public ResponseEntity<String> downloadFileS3Url(@RequestBody String key) {
-        String url = amazonClient.getUrl(key);
+    @GetMapping("/download/s3/url")
+    public ResponseEntity<String> getPresignedUrlFromS3(@RequestParam String key) {
+        String url = amazonClient.getPresignedGetObjectUrl(key);
 
         return ResponseEntity.status(HttpStatus.OK).body(url);
     }

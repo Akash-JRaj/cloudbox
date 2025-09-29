@@ -104,11 +104,11 @@ public class AmazonClient {
         }
     }
 
-    public String getUrl(String objectKey) {
+    public String getPresignedGetObjectUrl(String objectKey) {
         GetObjectRequest getObjectRequest = GetObjectRequest
                 .builder()
                 .bucket(bucketName)
-                .key("abebefdb-d878-4955-b0ef-9889b8e3c406/Akash_Jayaraj_SSE.pdf")
+                .key(objectKey)
                 .build();
 
         GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
