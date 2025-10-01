@@ -1,35 +1,65 @@
 package com.ajayaraj.cloudbox.controller;
 
-import com.ajayaraj.cloudbox.model.File;
-import com.ajayaraj.cloudbox.service.AmazonClient;
+import com.ajayaraj.cloudbox.service.AmazonS3Client;
 import com.ajayaraj.cloudbox.service.FileService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
 
 @RestController
 @RequestMapping("/files")
 public class FileController {
 
     private FileService fileService;
-    private AmazonClient amazonClient;
+    private AmazonS3Client amazonS3Client;
 
-    public FileController(FileService fileService, AmazonClient amazonClient) {
+    public FileController(FileService fileService, AmazonS3Client amazonS3Client) {
         this.fileService = fileService;
-        this.amazonClient = amazonClient;
+        this.amazonS3Client = amazonS3Client;
     }
 
-    @PostMapping("/upload")
-    public ResponseEntity<File> uploadFile(@RequestParam("file") MultipartFile file) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(fileService.handleUpload(file));
+    @PostMapping("/s3/upload")
+    public ResponseEntity<String> uploadFileToS3(@RequestBody MultipartFile file) throws IOException {
+        String url = fileService.uploadFile(file);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(url);
     }
 
-    @PostMapping("/upload/s3")
-    public ResponseEntity<String> uploadFileS3(@RequestParam("file") MultipartFile file) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(amazonClient.uploadFile(file));
+    @GetMapping("/s3/download")
+    public ResponseEntity<byte[]> downloadFileFromS3(@RequestParam String key) {
+        byte[] fileBytes = amazonS3Client.downloadFile(key);
+
+        return ResponseEntity.status(HttpStatus.OK).body(fileBytes);
+    }
+
+    @DeleteMapping("/s3/delete")
+    public ResponseEntity<Void> deleteFileFromS3(@RequestParam String key) {
+        amazonS3Client.deleteFile(key);
+
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @GetMapping("/s3/list")
+    public ResponseEntity<List<String>> listObjectsFromBucket() {
+        return ResponseEntity.status(HttpStatus.OK).body(amazonS3Client.listObjects());
+    }
+
+    @GetMapping("/s3/presignedget")
+    public ResponseEntity<URL> getPresignedGetUrl(@RequestParam String key) {
+        URL url = amazonS3Client.generatePresignedGetUrl(key);
+
+        return ResponseEntity.status(HttpStatus.OK).body(url);
+    }
+
+    @GetMapping("/s3/presignedput")
+    public ResponseEntity<URL> getPresignedPutUrl(@RequestParam String fileName) {
+        URL url = amazonS3Client.generatePresignedPutUrl(fileName);
+
+        return ResponseEntity.status(HttpStatus.OK).body(url);
     }
 }

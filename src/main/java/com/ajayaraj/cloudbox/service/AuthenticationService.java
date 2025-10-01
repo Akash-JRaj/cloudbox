@@ -69,6 +69,14 @@ public class AuthenticationService {
         return new BCryptPasswordEncoder().matches(loginRequest.getPassword(), user.getPasswordHash());
     }
 
+    public User getCurrentUser() {
+        String emailId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByEmailId(emailId);
+
+        return user;
+    }
+
     public UUID getCurrentUserId() {
         String emailId = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userRepository.findByEmailId(emailId);
