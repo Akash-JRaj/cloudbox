@@ -25,7 +25,7 @@ public class FileController {
 
     @PostMapping("/s3/upload")
     public ResponseEntity<String> uploadFileToS3(@RequestBody MultipartFile file) throws IOException {
-        String url = amazonS3Client.uploadFile(file);
+        String url = fileService.uploadFile(file);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(url);
     }
